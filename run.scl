@@ -6,13 +6,11 @@
 /rc VAR exe, ".runtimeconfig.json"
 /cl VAR "CommandLine.dll"
 
-/all
-
 /h DO @help
 /help DO @_help1, @_help2
 
-/_help1 ECHO "A Linux/Mac installer for SCL"
-/_help2 ECHO "hello\nthere"
+/_help1 ECHO "SCL Installer script for Linux/Mac"
+/_help2 ECHO "Run 'SCL -l' to the events"
 
 /build EXEC "dotnet build -sc"
 

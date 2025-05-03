@@ -1,0 +1,15 @@
+/* SCL as a Make replacement
+
+/cc VAR "gcc"
+/ ENV "cc", @cc
+
+/exe VAR "main"
+/ ENV "exe", @exe
+
+/output VAR "build"
+/ ENV "output", @output
+
+/all DO @build, @install
+
+/ 
+/build EXEC cc, "-o", exe, ""

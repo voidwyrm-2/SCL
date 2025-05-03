@@ -38,6 +38,9 @@ internal static class Program
         }
         catch (SclException e)
         {
+            if (e is ExitCodeException ec)
+                return ec.code;
+            
             Console.Error.WriteLine(e.Message);
             return 1;
         }
@@ -52,37 +55,42 @@ internal static class Program
             Console.WriteLine($"SCL interpreter version {Interpreter.VERSION}");
             return;
         }
-
-        FileInfo file = new(opts.File!);
-
-        if (!file.Exists)
-        {
-            Console.Error.WriteLine($"'{file.Name}' does not exist");
-            return;
-        }
         
-        Lexer.Lexer lexer = new(File.ReadAllText(file.FullName));
-
-        var tokens = lexer.Lex();
+        FileInfo file = new(opts.File!);
 
         if (opts.ShowTokens)
         {
-            foreach (Token token in tokens)
-                Console.WriteLine(token);
-            Console.WriteLine("");
+            if (!file.Exists)
+                throw new SclException($"'{file.Name}' does not exist");
 
-            return;
+            try
+            {
+                Lexer.Lexer lexer = new(File.ReadAllText(file.FullName));
+
+                var tokens = lexer.Lex();
+
+                foreach (Token token in tokens)
+                    Console.WriteLine(token);
+                
+                Console.WriteLine("");
+
+                return;
+            }
+            catch (IOException e)
+            {
+                throw new SclException($"could not read file '{file.Name}': {e.Message}");
+            }
         }
 
         Interpreter interp = new();
         
-        interp.Interpret(tokens);
+        interp.InterpretFile(file);
         
         if (opts.ShowEvents)
         {
-            (string[] named, int unnamed) = interp.Events();
+            (string[] named, int unnamed, int forced) = interp.Events();
 
-            Console.WriteLine($"SCL file '{file.Name}':\n {unnamed} unnamed event{unnamed.Plural()}\n {named.Length} named event{named.Length.Plural()}:\n  {string.Join("\n  ", named)}");
+            Console.WriteLine($"SCL file '{file.Name}':\n {unnamed} unnamed event{unnamed.Plural()} (of which {forced} are forced)\n {named.Length} named event{named.Length.Plural()}:\n  {string.Join("\n  ", named)}");
             
             return;
         }

@@ -1,0 +1,5 @@
+Changes for v1.2
+- Added the 'EXIT' event
+- Added documentation to many methods
+- Changed ttTypeMappings from a local variable to a static field
+- `Interpreter.Events` now also returns how many unnamed events are forced

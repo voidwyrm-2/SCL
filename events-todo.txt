@@ -1,0 +1,6 @@
+ENV (string, symbol)
+REQUIRE (string...)
+IF (boolean, symbol)
+IFELSE (boolean, symbol, symbol)
+IFN (boolean, symbol)
+IFNELSE (boolean, symbol, symbol)

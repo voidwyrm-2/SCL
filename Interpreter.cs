@@ -14,23 +14,30 @@ public class Interpreter
         }
     }
     
-    public const string VERSION = "1.0";
+    public const string VERSION = "1.2";
 
-    private readonly Dictionary<string, ISclType> _vars = [];
+    private readonly Dictionary<string, ISclType> _vars;
 
-    private readonly Dictionary<string, EventEntry> _namedEvents = [];
+    private readonly Dictionary<string, EventEntry> _namedEvents;
 
-    private readonly List<EventEntry> _unnamedEvents = [];
+    private readonly List<EventEntry> _unnamedEvents;
+
+    private int _forcedUnamedCount = 0;
 
     private readonly Dictionary<string, (ISclEvent, bool)> _registeredEvents = [];
 
-    public Interpreter()
+    public Interpreter(Dictionary<string, ISclType>? vars = null, Dictionary<string, EventEntry>? namedEvents = null, List<EventEntry>? unnamedEvents = null)
     {
-            RegisterEvent("ECHO", new Echo());
-            RegisterEvent("VAR", new Var(GenerateEnv()), true);
-            RegisterEvent("DO", new Do(GenerateEnv()));
-            RegisterEvent("NOP", new Nop());
-            RegisterEvent("CMD", new Cmd());
+        _vars = vars ?? [];
+        _namedEvents = namedEvents ?? [];
+        _unnamedEvents = unnamedEvents ?? [];
+        
+        RegisterEvent("ECHO", new Echo());
+        RegisterEvent("VAR", new Var(GenerateEnv()), true);
+        RegisterEvent("DO", new Do(GenerateEnv()));
+        RegisterEvent("NOP", new Nop());
+        RegisterEvent("CMD", new Cmd());
+        RegisterEvent("EXIT", new Exit());
     }
 
     public void Interpret(Token[] source)
@@ -52,6 +59,8 @@ public class Interpreter
                 
                 if (label.lit == "" || forceUnnamed)
                     _unnamedEvents.Add(new EventEntry(ev, label.lit, line[2..]));
+                else if (_namedEvents.ContainsKey(label.lit))
+                    label.Throw($"event '{label.lit}' already exists'");
                 else
                     _namedEvents.Add(label.lit, new EventEntry(ev, label.lit, line[2..]));
             }
@@ -60,6 +69,31 @@ public class Interpreter
                 eventName.Throw($"event '{eventName}' does not exist");
             }
         }
+    }
+
+    public void Interpret(string source)
+    {
+        Interpret(new Lexer.Lexer(source).Lex());
+    }
+
+    public void InterpretFile(FileInfo file)
+    {
+        if (!file.Exists)
+            throw new SclException($"'{file.Name}' does not exist");
+
+        try
+        {
+            Interpret(File.ReadAllText(file.FullName));
+        }
+        catch (IOException e)
+        {
+            throw new SclException($"could not read file '{file.Name}': {e.Message}");
+        }
+    }
+
+    public void InterpretFile(string path)
+    {
+        InterpretFile(new FileInfo(path));
     }
 
     /// <summary>
@@ -87,10 +121,10 @@ public class Interpreter
     }
 
     /// <summary>
-    /// Returns a list of named events and a count of unnamed events.
+    /// Returns a list of named events, a count of unnamed events, and a count of how many unnamed events are forced.
     /// </summary>
-    /// <returns>A list of named events and the amount of unnamed events.</returns>
-    public (string[], int) Events() => (_namedEvents.Keys.Where(s => !s.StartsWith('_')).ToArray(), _unnamedEvents.Count);
+    /// <returns>A list of named events, the amount of unnamed events, and the amount of forced unnamed events.</returns>
+    public (string[], int, int) Events() => (_namedEvents.Keys.Where(s => !s.StartsWith('_')).ToArray(), _unnamedEvents.Count, _forcedUnamedCount);
     
     /// <summary>
     /// Registers an event, allowing it to be used in SCL programs.
