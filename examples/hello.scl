@@ -1,0 +1,8 @@
+/* This is an event
+/* Events do specific things based on their 'action' field
+/* For example, the one below assigns the string "Hello there." to 'msg'
+/msg VAR "Hello there."
+
+/* events with empty name fields are automatically executed
+/* certain event types are also automatically executed, such as VAR
+/ ECHO msg

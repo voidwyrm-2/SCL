@@ -1,0 +1,5 @@
+/all DO hello, there, sir
+
+/hello ECHO "Hello"
+/there ECHO "There"
+/sir ECHO "Sir"

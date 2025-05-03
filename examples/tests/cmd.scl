@@ -1,0 +1,5 @@
+/all DO @step1, @step2, @step3
+
+/step1 CMD "cat", "Interpreter.cs"
+/step2 ECHO ""
+/step3 CMD "echo", "I'm inside a script!"

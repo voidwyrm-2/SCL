@@ -1,0 +1,5 @@
+/ ECHO "hello", "there", "woah"
+/ ECHO "hello", "there", "woah", sep="|"
+/ ECHO "what", "huh", sep="|", "wow", "ok"
+
+/ ECHO "much", "wow", sep=yes

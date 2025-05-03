@@ -1,0 +1,26 @@
+/installFolder VAR "/usr/local/bin/"
+/exe VAR "SCL"
+/dll VAR exe, ".dll"
+/pdb VAR exe, ".pdb"
+/deps VAR exe, ".deps.json"
+/rc VAR exe, ".runtimeconfig.json"
+/cl VAR "CommandLine.dll"
+
+/all
+
+/h DO @help
+/help DO @_help1, @_help2
+
+/_help1 ECHO "A Linux/Mac installer for SCL"
+/_help2 ECHO "hello\nthere"
+
+/build EXEC "dotnet build -sc"
+
+/install DO @_install1, @_install2, @_install3, @_install4, @_install5, @_install6
+
+/_install1 CMD "sudo", 'mv ./bin/Debug/net8.0/', exe, " ", installFolder, sep=""
+/_install2 CMD "sudo", 'mv ./bin/Debug/net8.0/', dll, " ", installFolder, sep=""
+/_install3 CMD "sudo", 'mv ./bin/Debug/net8.0/', pdb, " ", installFolder, sep=""
+/_install4 CMD "sudo", 'mv ./bin/Debug/net8.0/', deps, " ", installFolder, sep=""
+/_install5 CMD "sudo", 'mv ./bin/Debug/net8.0/', rc, " ", installFolder, sep=""
+/_install6 CMD "sudo", 'mv ./bin/Debug/net8.0/', cl, " ", installFolder, sep=""

@@ -1,0 +1,6 @@
+/x VAR "hello"
+/y VAR "good sir"
+
+/hello ECHO "Salutations!"
+
+/sir ECHO x, y

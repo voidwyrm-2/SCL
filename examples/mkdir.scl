@@ -1,0 +1,8 @@
+/all DO @step1, @step2, @step3, @step4
+
+/step1 CMD "mkdir", "out"
+/step2 CMD "cat", $'"this is a test file!" > out$test.txt'
+/step3 CMD "cat", $'out$test.txt > out$z.txt'
+/step4 CMD "echo", $'"this is an appended line!" >> out$z.txt'
+
+/clean CMD "rm", ""-rf out"
